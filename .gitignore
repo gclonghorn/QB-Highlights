@@ -1,0 +1,43 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.env.*
+
+# Large artifacts
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.gif
+*.pth
+*.safetensors
+*.ckpt
+*.bin
+*.onnx
+
+# Wandb / logs
+wandb/
+logs/
+*.log
+
+# Local editor
+.vscode/
+.idea/
+.DS_Store
+
+# Training / inference outputs
+results/
+outputs/
+checkpoints/
+runs/
+
+# XDL / nebula temp
+xdl_config_*.json*
+ossutil_output/
+
+# Materialized training data placeholders (uncomment if hosting elsewhere)
+# training_data/*.jsonl
+
+# cloned ms-swift fork (see training/README.md)
+training/ms-swift-3.11.0/

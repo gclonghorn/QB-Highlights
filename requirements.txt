@@ -1,0 +1,21 @@
+# Base runtime for QB-Highlights / QCR
+# Component-specific requirements live in each subfolder:
+#   training/requirements.txt         — ms-swift 3.11 + deepspeed + vllm for training
+#   inference/requirements.txt        — vLLM + video utils for inference
+#   evaluation/requirements.txt       — pandas + scipy + CLIP for metrics
+#   dataset/trainset/construction/requirements.txt — teacher pipeline (google-generativeai / openai / CLIP)
+
+# Common
+numpy
+pandas
+scipy
+tqdm
+openpyxl
+matplotlib
+Pillow
+opencv-python
+decord
+
+# Video / VLM
+torch>=2.1
+transformers>=4.44

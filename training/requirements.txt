@@ -1,0 +1,11 @@
+# QCR training (Stage-1 SFT + Stage-2 GRPO-LoRA)
+# The modified ms-swift 3.11.0 fork is cloned separately and installed with `pip install -e .`
+# (see README.md "Modified ms-swift"); do not add it here.
+qwen-vl-utils>=0.0.14
+transformers==4.57.0
+peft==0.18.0
+vllm==0.11.0
+deepspeed
+decord
+numpy==1.26.4
+func_timeout

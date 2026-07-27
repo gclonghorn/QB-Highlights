@@ -1,0 +1,11 @@
+# Teacher-assisted construction pipeline
+google-generativeai      # Gemini-2.5-Pro (candidate selection + composition)
+openai                   # Qwen3-Max via DashScope OpenAI-compatible endpoint
+git+https://github.com/openai/CLIP.git   # set-level diversity filter
+av                       # PyAV frame extraction
+Pillow
+numpy
+# external (wire up yourself):
+#   - MD-VQA scoring service / repo  (Zhang et al., CVPR'23)   -> stage3.mdvqa_score
+#   - GroundingDINO + weights                                  -> stage3.grounding_dino_boxes
+#   - ffmpeg on PATH (video downscale to 360p / 720p)

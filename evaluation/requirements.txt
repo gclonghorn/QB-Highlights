@@ -1,0 +1,10 @@
+# QB-Highlights evaluation (6 metrics)
+numpy
+opencv-python
+Pillow
+torch
+torchvision
+transformers            # CLIP backbone (Compositional Diversity)
+# Diversity(DINO): DINOv2 via torch.hub (facebookresearch/dinov2) — auto-downloaded
+# MD-VQA : clone https://github.com/zzc-1998/MD-VQA  -> pass --mdvqa-root
+# DOVER  : clone https://github.com/VQAssessment/DOVER -> pass --dover-root ; pip install -e .

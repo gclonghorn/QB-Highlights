@@ -1,0 +1,7 @@
+moviepy
+mediapipe==0.10.21
+dashscope
+tenacity
+scenedetect
+peft
+transformers==4.57.0
