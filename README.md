@@ -1,4 +1,4 @@
-# QB-Highlights + QCR
+# QB-Highlights
 
 Code and data release for **QB-Highlights: Quality-Guided Budgeted Highlight Detection in
 Videos with Dense Query-Relevant Moments**
@@ -37,7 +37,7 @@ launchers + reward plugin
   `inference/requirements.txt`, `evaluation/requirements.txt`,
   `dataset/trainset/construction/requirements.txt`.
 
-**QCR checkpoint (Stage-2 GRPO-merged)** — `<HF link withheld for double-blind review;
+**QCR checkpoint** — `<HF link withheld for double-blind review;
 will be added in the camera-ready>` — download to `checkpoints/QCR-checkpoint/` and pass
 its path to `--vlm-model-path`.
 
@@ -48,10 +48,10 @@ Clone official **ms-swift 3.11.0** into `training/ms-swift-3.11.0/`
 launcher via `torchrun` (single-node multi-GPU by default; multi-node via env vars):
 
 ```bash
-# Stage 1 — CoT SFT (full FT). Paper: eff. bs 128, lr 1e-5, max_len 49152, zero3.
+# Stage 1 — SFT. Paper: eff. bs 128, lr 1e-5, max_len 49152, zero3.
 NGPUS=8 bash training/train_sft.sh
 
-# Stage 2 — Trace-Aware GRPO (LoRA). Paper: eff. bs 96, lr 5e-6, num_generations 8,
+# Stage 2 — GRPO. Paper: eff. bs 96, lr 5e-6, num_generations 8,
 # vLLM colocate. Init from the Stage-1 SFT checkpoint.
 MODEL_PATH=./outputs/qcr_sft/<ckpt-dir> NGPUS=8 bash training/train_grpo.sh
 
@@ -65,15 +65,11 @@ bash inference/infer.sh   # edit --video-dir and --vlm-model-path first
 ```
 
 Runs QCR over `dataset/testset/test_0.9k.jsonl`. For each item it produces
-`<id>_spot.json` (metadata + raw model response with `<think>…</think><answer>…</answer>`
-+ parsed `clips`), `<id>_spot_fine.mp4` (concatenated highlight), and
+`<id>_spot.json` (metadata + raw model response with `<think>…</think><answer>…</answer>`+ parsed `clips`), `<id>_spot_fine.mp4` (concatenated highlight), and
 `fine_clips/<id>_spot/clip_NN.mp4` (each selected segment). Videos are resolved as
 `<video-dir>/<id>.mp4`; multi-GPU dispatch via `--num-gpus`.
 
 ## 5. Evaluation (`evaluation/`)
-
-Six metrics, GT read from `dataset/testset/`. Fixed 0.9k-video denominator; videos with
-no valid prediction contribute 0.
 
 ```bash
 python evaluation/run_all.py --pred-dir results/qcr_preds
