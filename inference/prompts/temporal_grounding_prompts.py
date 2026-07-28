@@ -1,13 +1,8 @@
-# 论文测试 Ours - CoT/GRPO
 DIRECT_HIGHLIGHT_DETECT_PROMPT_TEMPLATE = """\
-Your task is to create a 10-second highlight video clip plan \
-(1–3 segments, each ≥2 seconds) for the specified product \
-【{CORE_PRODUCT}】from a live-stream shopping video.
-
-High-quality segments must simultaneously satisfy:
-① The product appears clearly, fully, and without obstruction;
-② The shot is stable and continuous with no cuts or transitions;
-③ The host is focused on explaining or demonstrating the product.
+Your task is to create a 10-second highlight video clip for {query} from the video. High-quality segments must simultaneously satisfy:\
+① The target query content appears clearly, fully, and without obstruction;\
+② The shot is stable and continuous with no cuts or transitions;\
+③ The segment carries substantive query-relevant visual content with high information density.\
 When combining multiple segments, ensure they cover \
 **different angles or states** to avoid redundancy; \
 prioritize the highest-quality, cover-worthy segment as the opening.

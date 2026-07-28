@@ -66,8 +66,7 @@ class VLMClient:
         logger.debug(f"Local VLM ({self.device}) output:\n{output_text}")
         return output_text
 
-    def direct_highlight_detect(self, video_url: str, metadata: Dict[str, Any], core_product: str,
+    def direct_highlight_detect(self, video_url: str, metadata: Dict[str, Any], query: str,
                                 fps: float, use_system_prompt: bool = True, **kwargs) -> str:
-        user_prompt = DIRECT_HIGHLIGHT_DETECT_PROMPT_TEMPLATE.format(CORE_PRODUCT=core_product)
-        user_prompt += f"\n\n## Product metadata:\n{metadata}"
+        user_prompt = DIRECT_HIGHLIGHT_DETECT_PROMPT_TEMPLATE.format(query=query)
         return self._inference_with_video(video_url, user_prompt, fps=fps, use_system_prompt=use_system_prompt)

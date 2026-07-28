@@ -40,12 +40,6 @@ def load_jsonl(path: str) -> List[Dict[str, Any]]:
     return rows
 
 
-def core_product_name(meta: Dict[str, Any]) -> str:
-    name = meta.get("query") or meta.get("livestream_name") or ""
-    leaf = meta.get("product_leaf_category")
-    return f"{name} ({leaf})" if leaf else name
-
-
 def extract_answer_json(response: str) -> Dict[str, Any]:
     """Parse the JSON inside <answer>...</answer>, with a last-JSON-block fallback."""
     if not response:
@@ -81,7 +75,7 @@ def process_one(client: VLMClient, task: Dict[str, Any], args: argparse.Namespac
         video_url=video_path,
         metadata={k: task.get(k) for k in ("query", "livestream_name",
                                            "product_main_category", "product_leaf_category") if task.get(k)},
-        core_product=core_product_name(task),
+        query=str(task.get("query", "")),
         fps=args.fps,
         use_system_prompt=True,
     )
