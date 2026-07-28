@@ -2,7 +2,7 @@
 """MD-VQA — model-based perceptual video quality (paper Table 3).
 
 Runs MD-VQA (Zhang et al., CVPR'23) on each extracted highlight clip mp4, averages
-per video, then over the 902 eval videos. MD-VQA is a *third-party* model trained on
+per video, then over the ~0.9k eval videos. MD-VQA is a *third-party* model trained on
 UGC videos disjoint from QB-Highlights (used as an independent quality check).
 
 Reference repo: https://github.com/zzc-1998/MD-VQA  (local path via --mdvqa-root)

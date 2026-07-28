@@ -2,7 +2,7 @@
 """Shared helpers for QB-Highlights evaluation.
 
 Reads the released test set from `dataset/testset/`:
-  - test_0.9k.jsonl   : the 902 eval ids (+ query / categories)
+  - test_0.9k.jsonl   : the ~0.9k eval ids (+ query / categories)
   - test_set_annotations.csv  : per-video dense 2-second clip scores
                                 (video_id, clip="SSS-EEE", mean_score, ...)
 

@@ -2,7 +2,7 @@
 """DOVER — disentangled objective video quality (rebuttal, independent of MD-VQA).
 
 Runs DOVER (Wu et al., ICCV'23) on each extracted highlight clip mp4 and reports the
-fused overall quality score (scale [0,1]), averaged per video then over the 902 eval
+fused overall quality score (scale [0,1]), averaged per video then over the ~0.9k eval
 videos. DOVER's training data and backbone are disjoint from both MD-VQA and our
 CLIP-based pipeline, so it serves as an independent quality metric.
 

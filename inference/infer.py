@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-QCR inference (paper setting): local Qwen3-VL, single-stage direct highlight
-detection. For each test item it prompts the trained model with the DIRECT
+QCR inference. For each test item it prompts the trained model with the QCR
 template, parses <think>+<answer>, and writes:
     <output>/<id>_spot.json              (reasoning trace + predicted clips)
     <output>/<id>_spot_fine.mp4          (concatenated highlight)
@@ -77,7 +76,7 @@ def process_one(client: VLMClient, task: Dict[str, Any], args: argparse.Namespac
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"Video not found for id {vid}: {video_path}")
 
-    # --- direct single-stage highlight detection (local VLM) ---
+    # --- QCR highlight detection ---
     response = client.direct_highlight_detect(
         video_url=video_path,
         metadata={k: task.get(k) for k in ("query", "livestream_name",
@@ -174,7 +173,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="QCR local single-stage inference")
+    ap = argparse.ArgumentParser(description="QCR inference")
     ap.add_argument("--tasks-jsonl-path", required=True, help="test_0.9k.jsonl")
     ap.add_argument("--video-dir", required=True, help="dir containing <id>.mp4 source videos")
     ap.add_argument("--experiment-name", required=True)

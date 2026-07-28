@@ -9,7 +9,7 @@ computes  diversity = 1 - mean(pairwise cosine similarity).
   --backbone dino  ->  Diversity(DINO)            (DINOv2, feature space disjoint
                                                    from CLIP; rebuttal metric)
 
-Averaged over the 902 eval videos (missing predictions contribute 0).
+Averaged over the ~0.9k eval videos (missing predictions contribute 0).
 """
 import argparse
 import itertools

@@ -1,8 +1,7 @@
 # QB-Highlights + QCR
 
 Code and data release for **QB-Highlights: Quality-Guided Budgeted Highlight Detection in
-Videos with Dense Query-Relevant Moments** and the **QCR (Qualification-then-Composition
-Reasoning)** framework.
+Videos with Dense Query-Relevant Moments**
 
 ## Repository layout
 
@@ -11,8 +10,9 @@ QB-Highlights-Release/
 ├── dataset/
 │   ├── trainset/            49.1K GRPO + 17.5K SFT-CoT pseudo-labeled samples
 │   │   └── construction/    teacher-assisted pseudo-label pipeline (prompts + code)
-│   └── testset/             902-video test set + dense per-clip human annotations
-├── training/                Stage-1 SFT + Stage-2 GRPO-LoRA launchers + reward plugin
+│   └── testset/             0.9k-video test set + dense per-clip human annotations
+├── training/                Stage-1 SFT + Stage-2 GRPO
+launchers + reward plugin
 ├── inference/               QCR inference over the test set -> per-video clips + json
 ├── evaluation/              6 metrics (see below)
 ├── DATASHEET.md             provenance, ethics, full release scope
@@ -21,14 +21,13 @@ QB-Highlights-Release/
 
 ## 1. Dataset (`dataset/`)
 
-- **Test set** — `dataset/testset/test_0.9k.jsonl` (902 items: `id`, `query`,
+- **Test set** — `dataset/testset/test_0.9k.jsonl` (~0.9k items: `id`, `query`,
   categories) + `dataset/testset/test_set_annotations.csv` (dense 2 s clip scores from
   3 anonymized annotators).
 - **Training set** — `dataset/trainset/{sft_cot_17k, grpo_49k}.jsonl` (MLLM-assisted
   pseudo labels + reasoning traces).
-- All `videos` fields in the JSONLs are `videos/<video_id>.mp4`; raw videos are released
-  separately after paper publication + company content review (video IDs are provided
-  meanwhile). See `DATASHEET.md`.
+- All `videos` fields in the JSONLs are `videos/<video_id>.mp4`; raw videos will be released
+  separately after paper publication + company content review. See `DATASHEET.md`.
 
 ## 2. Environment
 
@@ -59,39 +58,21 @@ MODEL_PATH=./outputs/qcr_sft/<ckpt-dir> NGPUS=8 bash training/train_grpo.sh
 # multi-node: NNODES=2 NODE_RANK=0 MASTER_ADDR=<host> MASTER_PORT=29500 NGPUS=8 bash ...
 ```
 
-GRPO reward plugin: `training/reward_functions.py`. Registered rewards & paper weights
-(applied to `--reward_funcs`):
-
-| name | class | paper term | weight |
-|---|---|---|---|
-| `r-local`  | `LocalQualityReward`  | R_local (NGIoU + boundary) | 0.35 |
-| `r-global` | `GlobalQualityReward` | R_global (union-IoU) | 0.20 |
-| `r-ground` | `GroundingReward`     | R_ground | 0.20 |
-| `r-comp`   | `CompositionReward`   | R_comp   | 0.20 |
-| `r-format` | `FormatReward`        | R_format | 0.05 |
-
-Merge the LoRA adapter into the base model: `python training/merge_lora.py`
-(edit paths at the bottom of the script).
-
-Paper used 16×H100. Two local ms-swift tweaks were also used: `timestamp` loss-scale
-for `--loss_scale timestamp` (Stage 1) and tolerant skipping of corrupt videos; if you
-use stock ms-swift, either register a `timestamp` loss-scale or drop that flag.
-
 ## 4. Inference (`inference/`)
 
 ```bash
 bash inference/infer.sh   # edit --video-dir and --vlm-model-path first
 ```
 
-Runs QCR single-stage over `dataset/testset/test_0.9k.jsonl` (local Qwen3-VL, no API).
-For each item it produces `<id>_spot.json` (metadata + raw model response with `<think>
-…</think><answer>…</answer>` + parsed `clips`), `<id>_spot_fine.mp4` (concatenated
-highlight), and `fine_clips/<id>_spot/clip_NN.mp4` (each selected segment).
-Videos are resolved as `<video-dir>/<id>.mp4`; multi-GPU dispatch via `--num-gpus`.
+Runs QCR over `dataset/testset/test_0.9k.jsonl`. For each item it produces
+`<id>_spot.json` (metadata + raw model response with `<think>…</think><answer>…</answer>`
++ parsed `clips`), `<id>_spot_fine.mp4` (concatenated highlight), and
+`fine_clips/<id>_spot/clip_NN.mp4` (each selected segment). Videos are resolved as
+`<video-dir>/<id>.mp4`; multi-GPU dispatch via `--num-gpus`.
 
 ## 5. Evaluation (`evaluation/`)
 
-Six metrics, GT read from `dataset/testset/`. Fixed 902-video denominator; videos with
+Six metrics, GT read from `dataset/testset/`. Fixed 0.9k-video denominator; videos with
 no valid prediction contribute 0.
 
 ```bash
@@ -126,7 +107,7 @@ python evaluation/eval_dover.py --pred-dir <pred> --dover-root /path/to/DOVER --
 ```
 DINOv2 auto-downloads via `torch.hub` on first run; CLIP auto-downloads via `transformers`.
 
-## Results (QB-Highlights, 902 test videos, budget = 10 s)
+## Results (QB-Highlights, 0.9k test videos, budget = 10 s)
 
 | | Score@Pred ↑ | Prec@4.0 ↑ | MD-VQA ↑ | Comp. Diversity ↑ |
 |---|---|---|---|---|
@@ -135,11 +116,15 @@ DINOv2 auto-downloads via `torch.hub` on first run; CLIP auto-downloads via `tra
 
 ## Appendix — rebuilding the training set from scratch
 
-Skip this if you use the released `dataset/trainset/*.jsonl`. To reproduce the
+Skip this if you use the released `dataset/trainset/*.jsonl`. 
+
+To reproduce the
 pseudo-label construction, see `dataset/trainset/construction/`: teacher-assisted
 coarse-to-fine pipeline — Gemini-2.5-Pro candidate selection (360p) → composition
 (720p) → MD-VQA + Grounding DINO + CLIP filters → Qwen3-Max reasoning traces →
-`sft_cot_17k.jsonl` + `grpo_49k.jsonl`. The three teacher prompts (verbatim from paper
+`sft_cot_17k.jsonl` + `grpo_49k.jsonl`. 
+
+The three teacher prompts (verbatim from paper
 Appendix B.2) are in `dataset/trainset/construction/prompts.py`; run with
 `python dataset/trainset/construction/run_pipeline.py --input <video_query.jsonl>`.
 
@@ -147,6 +132,5 @@ Appendix B.2) are in `dataset/trainset/construction/prompts.py`; run with
 
 See **`DATASHEET.md`** for provenance, privacy/copyright/consent, and the full release
 table. Annotations, pseudo-labels, reasoning traces, construction/training/inference/
-evaluation code, and checkpoints are released now; **raw videos** are released after
-paper publication + company content review (video IDs are provided meanwhile). Code:
-**Apache-2.0**; released data: **CC-BY-4.0**; checkpoints: **Qwen** license.
+evaluation code are released now; Checkpoints link will be released after double-blind review;  **raw videos** will be released after
+paper publication + company content review. 

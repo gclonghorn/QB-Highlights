@@ -1,59 +1,33 @@
 # QB-Highlights — Datasheet, Provenance & Release
 
-Provenance, ethics (privacy / copyright / consent), and the full release scope for
-QB-Highlights.
+Provenance, ethics (privacy / copyright / consent), release scope for QB-Highlights.
 
 ## Provenance
 
-QB-Highlights is built from **50K e-commerce livestream videos** (1080p, ~80 s avg)
-from a leading e-commerce platform — **publicly viewable product-presentation replays**
-(a host demonstrating a product), not private recordings. Each video is paired with a
-fine-grained product-presentation **query** (e.g. "present the women's double-breasted
-mid-length leather jacket"). 49.1K samples carry MLLM-assisted pseudo labels; 902 test
-videos carry dense human quality annotations.
+QB-Highlights is built from **50K e-commerce livestream videos** (1080p, ~80 s average length) from a leading e-commerce platform. The source videos are **publicly viewable product-presentation replays** rather than private recordings. Each video is paired with a fine-grained product-presentation **query** (e.g., “present the women’s double-breasted mid-length leather jacket”). The training split contains **49.1K** samples with MLLM-assisted pseudo labels, and the test split contains **0.9K** videos with dense human quality annotations.
 
-## Ethics: consent, copyright, privacy
+## Ethics: privacy, copyright, and consent
 
-- **Consent & copyright.** Every source video was originally uploaded to the platform by
-  the merchant / host under the platform's terms of use, which grant the platform the
-  right to distribute and reuse it (including for internal research). We use only
-  publicly viewable product-presentation replays, for **non-commercial academic
-  research**. Raw-video public release requires a routine company content review after
-  paper publication; we expect it to pass. Until then, raw pixels are withheld and this
-  repo releases only annotations, pseudo-labels, reasoning traces, code, and
-  checkpoints.
-- **Privacy.** The subjects on screen are commercial livestream hosts performing
-  product demos on a public platform, not private users; no bystanders or third-party
-  private content is in scope. What we release:
-  - **Video IDs** are the platform's product / stream identifiers only — they contain
-    no host names, contacts, or other PII.
-  - **Human annotations** are anonymized: worker IDs are replaced by
-    `annotator_1/2/3`, and only numeric 1–5 quality scores are kept.
-  - **Text fields** (queries, product categories, teacher reasoning traces) describe
-    on-screen product presentation only; we screened for personal data.
-- **Intended use.** Video highlight detection / temporal grounding research. **Not**
-  for surveillance, person re-identification, or commercial use of the footage.
+Source videos are publicly viewable product-presentation replays hosted on the platform. Their collection and use for this benchmark underwent **internal legal/data review** and comply with applicable privacy regulations and platform policies. Users are informed through platform policies that public content may be used for research/AI-related purposes.
+
+To reduce privacy risks in the release:
+- **Released video identifiers are anonymized** and contain no host names, contact information, or other direct PII.
+- **Human annotations are anonymized**: worker IDs are replaced by `annotator_1/2/3`, and only numeric 1–5 quality scores are retained.
+- **Text fields** (e.g., queries, product categories, and teacher reasoning traces) describe on-screen product presentation only and were screened for personal data.
+
 
 ## Release scope
 
 | # | Item | Status | Location |
 |---|---|---|---|
-| 1 | Raw videos (50K train + 902 test) | **After publication + company review** (expected to pass) | HF (pending) |
-| 2 | Video IDs | ✅ Released | `dataset/testset/test_0.9k.jsonl`; `videos/<id>.mp4` refs in trainset |
+| 1 | Raw videos (~50k train + ~0.9k test) | **After publication + routine company review** | HF / release page (pending) |
+| 2 | Video IDs / metadata | ✅ Released | `dataset/testset/test_0.9k.jsonl`; train-set video refs |
 | 3 | Test set + human annotations | ✅ Released | `dataset/testset/{test_0.9k.jsonl, test_set_annotations.csv}` |
-| 4 | Training pseudo-labels + CoT reasoning traces | ✅ Released | `dataset/trainset/{grpo_49k.jsonl, sft_cot_17k.jsonl}` |
+| 4 | Training pseudo-labels + reasoning traces | ✅ Released | `dataset/trainset/{grpo_49k.jsonl, sft_cot_17k.jsonl}` |
 | 5 | Training-set construction pipeline + prompts | ✅ Released | `dataset/trainset/construction/` |
-| 6 | Evaluation code (6 metrics) | ✅ Released | `evaluation/` |
-| 7 | Trained checkpoints (SFT, GRPO-merged) | ✅ Released | HF: `<link withheld for double-blind review; camera-ready will include the URL>` — `QCR-checkpoint/` (Qwen license inherited) |
-| 8 | Full dataset | ✅ Released (raw video via #1) | `dataset/` |
-| + | Training code + configs | ✅ Released | `training/` |
-| + | Inference code | ✅ Released | `inference/` |
+| 6 | Evaluation code | ✅ Released | `evaluation/` |
+| 7 | Trained checkpoints (SFT, GRPO-merged) | ✅ Released | `QCR-checkpoint/` *(Qwen license inherited; public link added after de-anonymization)* |
+| 8 | Training code + configs | ✅ Released | `training/` |
+| 9 | Inference code | ✅ Released | `inference/` |
 
-All released annotations / pseudo-labels / traces / prompts / code are CC-BY-4.0 /
-Apache-2.0 (see `LICENSE`); checkpoints inherit the Qwen license.
-
-## Reproducibility
-
-All training, inference, and evaluation in this repo run end-to-end once the videos are
-obtained (item #1 after publication + review, or re-collected via the released video
-IDs on the platform).
+**Licenses.** Code is released under **Apache-2.0**. Released dataset assets (including annotations, pseudo-labels, prompts, reasoning traces, and metadata) are released under **ODC-BY**. Checkpoints inherit the **Qwen** license. Raw-video release will occur after publication, subject to routine internal company content review.

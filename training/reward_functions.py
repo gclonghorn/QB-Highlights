@@ -225,61 +225,7 @@ class LocalQualityReward(ORM):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 3. r-format
-# ══════════════════════════════════════════════════════════════════════════════
-
-class FormatReward(ORM):
-    """
-    格式奖励（总分 1.0）：
-      0.2  think 在 answer 之前（顺序正确）
-      0.4  think 内 <time>/<eval> 严格交替且非空
-      0.4  answer 标签存在
-    """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def __call__(self, completions: List[str], **kwargs) -> List[float]:
-        batch_rewards = []
-        for text in completions:
-            score = 0.0
-            try:
-                THINK_PAT  = r'<' + r'think>(.*?)</' + r'think>'
-                ANSWER_PAT = r'<answer>(.*?)</answer>'
-                think_m    = re.search(THINK_PAT,  text, re.DOTALL)
-                answer_m   = re.search(ANSWER_PAT, text, re.DOTALL)
-
-                # 0.2: 顺序正确
-                if think_m and answer_m and think_m.end() <= answer_m.start():
-                    score += 0.2
-
-                # 0.4: think 内部 time/eval 交替
-                if think_m:
-                    inner = think_m.group(1)
-                    tags  = re.findall(r'<(time|eval)>', inner)
-                    if len(tags) >= 2 and len(tags) % 2 == 0:
-                        alternating = all(
-                            tags[j] == 'time' and tags[j + 1] == 'eval'
-                            for j in range(0, len(tags), 2)
-                        )
-                        times = re.findall(r'<time>(.*?)</time>', inner, re.DOTALL)
-                        evals = re.findall(r'<eval>(.*?)</eval>', inner, re.DOTALL)
-                        if (alternating
-                                and all(t.strip() for t in times)
-                                and all(e.strip() for e in evals)):
-                            score += 0.4
-
-                # 0.4: answer 标签存在
-                if answer_m:
-                    score += 0.4
-
-            except Exception:
-                score = 0.0
-            batch_rewards.append(score)
-        return batch_rewards
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# 4. r-ground
+# 3. r-ground
 # ══════════════════════════════════════════════════════════════════════════════
 
 class GroundingReward(ORM):
@@ -317,7 +263,7 @@ class GroundingReward(ORM):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 5. r-comp
+# 4. r-comp
 # ══════════════════════════════════════════════════════════════════════════════
 
 class CompositionReward(ORM):
@@ -462,9 +408,8 @@ class CompositionReward(ORM):
 # 注册
 # ══════════════════════════════════════════════════════════════════════════════
 
-orms['r-global']          = GlobalQualityReward
-orms['r-local'] = LocalQualityReward
-orms['r-format']                              = FormatReward
-orms['r-ground']                              = GroundingReward
-orms['r-comp']                       = CompositionReward
+orms['r-global'] = GlobalQualityReward
+orms['r-local']  = LocalQualityReward
+orms['r-ground'] = GroundingReward
+orms['r-comp']   = CompositionReward
 

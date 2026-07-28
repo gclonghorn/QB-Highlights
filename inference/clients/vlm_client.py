@@ -1,4 +1,4 @@
-# vlm_client.py — local Qwen3-VL inference for QCR (single-stage, direct).
+# vlm_client.py — Qwen3-VL inference for QCR.
 
 import logging
 import os

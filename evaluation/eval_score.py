@@ -7,7 +7,7 @@ Prec@τ     : fraction of predicted duration overlapping GT clips whose
              mean_score ≥ τ (default τ = 4.0).
 
 GT is read from `dataset/testset/test_set_annotations.csv`; the fixed denominator
-(902 ids) from `dataset/testset/test_0.9k.jsonl`. Videos with no valid
+(~0.9k ids) from `dataset/testset/test_0.9k.jsonl`. Videos with no valid
 prediction contribute 0.
 """
 import argparse
