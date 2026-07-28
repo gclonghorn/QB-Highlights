@@ -20,7 +20,7 @@ To reduce privacy risks in the release:
 
 | # | Item | Status | Location |
 |---|---|---|---|
-| 1 | Raw videos (~50k train + ~0.9k test) | **After publication + routine company review** | HF / release page (pending) |
+| 1 | Raw videos (~49.1k train + ~0.9k test) | **After publication + routine company review** | HF / release page (pending) |
 | 2 | Video IDs / metadata | ✅ Released | `dataset/testset/test_0.9k.jsonl`; train-set video refs |
 | 3 | Test set + human annotations | ✅ Released | `dataset/testset/{test_0.9k.jsonl, test_set_annotations.csv}` |
 | 4 | Training pseudo-labels + reasoning traces | ✅ Released | `dataset/trainset/{grpo_49k.jsonl, sft_cot_17k.jsonl}` |
