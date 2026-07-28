@@ -5,26 +5,24 @@ Code (all *.py, *.sh in this repository)
     Licensed under the Apache License, Version 2.0.
 
 Released data artifacts (human annotations, pseudo-labels, reasoning traces,
-teacher prompts, video-ID lists)
-    Licensed under the Creative Commons Attribution 4.0 International License
-    (CC-BY-4.0): https://creativecommons.org/licenses/by/4.0/
+teacher prompts, video-ID lists, and other released dataset metadata)
+    Licensed under the Open Data Commons Attribution License (ODC-BY):
+    https://opendatacommons.org/licenses/by/
 
 Source videos
-    NOT distributed in this repository. Copyright to the original livestream
+    Not distributed in this repository. Copyright to the original livestream
     recordings remains with the originating e-commerce platform and the
     respective rights holders. Raw videos will be released after paper
-    publication and a company content review (see DATASHEET.md).
+    publication, subject to routine company content review (see DATASHEET.md).
 
 Model checkpoints
     QCR checkpoints are derivatives of Qwen3-VL-8B-Instruct and are distributed
     under, and subject to, the upstream Qwen license and usage terms. Users must
     comply with the Qwen license in addition to the terms above.
 
-Third-party components (baselines, evaluators such as MD-VQA, DOVER, DINOv2,
-CLIP, BLIP-2, UniVTG, Moment-DETR, QD-DETR) retain their own upstream licenses.
+Third-party components (e.g., baselines and evaluators such as MD-VQA, DOVER,
+DINOv2, CLIP, BLIP-2, UniVTG, Moment-DETR, and QD-DETR) retain their own
+upstream licenses.
 
-By using any artifact in this repository you agree to the applicable license
-above and to the intended-use restrictions described in DATASHEET.md
-(non-commercial academic research use).
-
-SPDX-License-Identifier: Apache-2.0 AND CC-BY-4.0
+By using any artifact in this repository, you agree to comply with the
+applicable license terms above.
