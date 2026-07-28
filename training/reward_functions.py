@@ -1,7 +1,7 @@
 import json
-import re
-import math
 import logging
+import math
+import re
 from typing import List
 
 import numpy as np
@@ -11,11 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 解析工具函数
+# Parsing helpers
 # ══════════════════════════════════════════════════════════════════════════════
 
 def parse_time_str_to_seconds(time_str: str):
-    """MM:SS.xx → 秒"""
+    """Parse 'MM:SS.xx' (or 'SS') into seconds."""
     try:
         parts = time_str.split(':')
         if len(parts) == 2:
@@ -28,7 +28,7 @@ def parse_time_str_to_seconds(time_str: str):
 
 
 def get_timestamps_from_str(json_str: str):
-    """从 JSON 字符串解析 clips 时间戳"""
+    """Parse clip timestamps from a JSON string with a `clips[]` field."""
     try:
         if json_str.strip().startswith("```json"):
             json_str = json_str.strip()[7:].strip()
@@ -54,7 +54,7 @@ def get_timestamps_from_str(json_str: str):
 
 
 def get_timestamps_from_deepseek_format(text: str):
-    """从 <answer>...</answer> 标签内解析时间戳"""
+    """Parse timestamps from the content inside <answer>...</answer>."""
     if not isinstance(text, str):
         return None
     match          = re.search(r'<answer>(.*?)</answer>', text, re.DOTALL)
@@ -65,7 +65,7 @@ def get_timestamps_from_deepseek_format(text: str):
 
 
 def get_time_tags_from_think(text: str) -> List[List[float]]:
-    """从 think 标签内提取所有 <time>xx-xx</time> 时间段"""
+    """Collect every <time>...</time> span inside <think>...</think>."""
     if not isinstance(text, str):
         return []
     THINK_OPEN  = "<" + "think" + ">"
@@ -94,7 +94,7 @@ def get_time_tags_from_think(text: str) -> List[List[float]]:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 几何工具函数
+# Geometry helpers
 # ══════════════════════════════════════════════════════════════════════════════
 
 def calculate_union_of_segments(segments: List[List[float]]) -> List[List[float]]:
@@ -133,14 +133,11 @@ def calculate_ngiou(pred_ts: List[float], gt_ts: List[float]) -> float:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 1. r-global
+# 1. r-global : union-IoU between predicted and reference highlight sets
 # ══════════════════════════════════════════════════════════════════════════════
 
 class GlobalQualityReward(ORM):
-    """
-    所有预测片段的并集 vs 所有 GT 片段的并集 → Union IoU
-    使用 <answer> 标签解析
-    """
+    """Union-IoU between predicted and reference highlight sets (parsed from <answer>)."""
     def __call__(self, completions: List[str], **kwargs) -> List[float]:
         gt_solutions_batch = kwargs.get('solution')
         if gt_solutions_batch is None:
@@ -172,14 +169,11 @@ class GlobalQualityReward(ORM):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 2. r-local
+# 2. r-local : per-pair NGIoU with an exponential boundary-offset penalty
 # ══════════════════════════════════════════════════════════════════════════════
 
 class LocalQualityReward(ORM):
-    """
-    逐片段：NGIoU × exp(-k × (δs + δe) / min(gt_dur, cap))
-    使用 <answer> 标签解析
-    """
+    """Per-pair NGIoU multiplied by exp(-k * (ds + de) / min(gt_dur, cap))."""
     def __init__(self, boundary_penalty_k: float = 1.0,
                  duration_cap: float = 5.0, **kwargs):
         super().__init__(**kwargs)
@@ -225,14 +219,14 @@ class LocalQualityReward(ORM):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 3. r-ground
+# 3. r-ground : reward if <answer> intervals stay within a <think> candidate
 # ══════════════════════════════════════════════════════════════════════════════
 
 class GroundingReward(ORM):
     """
-    answer 时间戳不脱离 think 中推理过的候选区间。
-    coverage(a, t) = |a∩t| / |a|
-    reward = mean over answer clips of max_t coverage(a, t) ^ alpha
+    Encourages every predicted <answer> interval to lie within some candidate
+    interval marked in <think>. Per-clip coverage is |a ∩ t| / |a|; the reward
+    is the mean over answer clips of max_t coverage(a, t) ** alpha.
     """
     def __init__(self, alpha: float = 1.0, **kwargs):
         super().__init__(**kwargs)
@@ -263,16 +257,14 @@ class GroundingReward(ORM):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 4. r-comp
+# 4. r-comp : gap + stage-coverage; encourages complementary composition
 # ══════════════════════════════════════════════════════════════════════════════
 
 class CompositionReward(ORM):
     """
-    Gap + Stage Coverage 版本：
-    gap_score      : 相邻片段不要太近（local anti-crowding）
-    coverage_score : 片段不要都集中在同一时间阶段（global stage coverage）
-
-    diversity = weight_gap * gap_score + weight_cov * coverage_score
+    diversity = w_gap * gap_score + w_cov * coverage_score
+      gap_score      : local anti-crowding (adjacent clips not too close)
+      coverage_score : global stage coverage (clips spread across the video)
     """
     def __init__(
         self,
@@ -299,14 +291,14 @@ class CompositionReward(ORM):
         )
 
     def __call__(self, completions: List[str], **kwargs) -> List[float]:
-        # 支持多种字段名
+        # accept several possible field names
         video_durations = (
             kwargs.get("video_durations")
             or kwargs.get("durations")
             or kwargs.get("video_duration")
         )
 
-        # 单个 float → 扩展为列表
+        # broadcast a scalar to a list
         if isinstance(video_durations, (int, float)):
             video_durations = [float(video_durations)] * len(completions)
 
@@ -328,9 +320,8 @@ class CompositionReward(ORM):
             for i, c in enumerate(completions)
         ]
 
-    # ── gap 分数 ──────────────────────────────────────────────────────────
     def _gap_score(self, pred_timestamps: List[List[float]]) -> float:
-        """相邻片段 gap 分数；单片段返回 1.0（gap 约束不适用）"""
+        """Adjacent-gap score. Single-clip case returns 1.0 (no gap constraint)."""
         if len(pred_timestamps) <= 1:
             return 1.0
         pts    = sorted(pred_timestamps, key=lambda x: x[0])
@@ -341,13 +332,12 @@ class CompositionReward(ORM):
             scores.append(score)
         return float(sum(scores) / len(scores)) if scores else 1.0
 
-    # ── bin 覆盖 ──────────────────────────────────────────────────────────
     def _clip_to_bins(
         self,
         ts: List[float],
         video_duration: float,
     ) -> set:
-        """返回该片段覆盖到的 bin 索引集合"""
+        """Bin indices covered by the given clip."""
         s, e = ts
         if video_duration <= 1e-6 or e <= s:
             return set()
@@ -372,7 +362,7 @@ class CompositionReward(ORM):
         pred_timestamps: List[List[float]],
         video_duration:  float,
     ) -> float:
-        """stage coverage 分数 = 覆盖到的 unique bins / num_bins"""
+        """Stage coverage score = |unique bins covered| / num_bins."""
         if not pred_timestamps or video_duration <= 1e-6:
             return 0.0
         if len(pred_timestamps) == 1 and self.single_clip_cov_mode == "fixed":
@@ -382,7 +372,6 @@ class CompositionReward(ORM):
             covered_bins |= self._clip_to_bins(ts, video_duration)
         return float(len(covered_bins) / max(self.num_bins, 1))
 
-    # ── 单条计算 ──────────────────────────────────────────────────────────
     def _compute(self, text: str, video_duration: float) -> float:
         pred_timestamps = get_timestamps_from_deepseek_format(text)
         if not pred_timestamps:
@@ -405,11 +394,10 @@ class CompositionReward(ORM):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 注册
+# Registration
 # ══════════════════════════════════════════════════════════════════════════════
 
 orms['r-global'] = GlobalQualityReward
 orms['r-local']  = LocalQualityReward
 orms['r-ground'] = GroundingReward
 orms['r-comp']   = CompositionReward
-

@@ -107,7 +107,7 @@ GRPO_SYSTEM_PROMPT = (
 # "10cm-12cm Ornamental Fish Assortment ... Product Category: Fish".
 TRAIN_USER_PROMPT = """<video>
 Your task is to create a 10-second highlight video clip plan (1–3 segments, each ≥2 seconds) for the specified product from a live-stream shopping video.
-【{product_block}】
+[{product_block}]
 
 High-quality segments must simultaneously satisfy:
 ① The product appears clearly, fully, and without obstruction;
