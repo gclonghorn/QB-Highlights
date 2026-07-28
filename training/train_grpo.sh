@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stage 2 — Trace-Aware GRPO (LoRA, paper config), portable multi-GPU launcher via torchrun.
+# Stage 2 — Trace-Aware GRPO
 #
 # Usage:
 #   MODEL_PATH=<Stage1 SFT ckpt> NGPUS=8 bash train_grpo.sh
@@ -29,22 +29,12 @@ export NPROC_PER_NODE=$NGPUS
 export FPS=1.0
 export FPS_MAX_FRAMES=180
 export VLLM_ALLREDUCE_USE_SYMM_MEM=0
-# optional: export WANDB_PROJECT=... WANDB_RUN_NAME=... WANDB_API_KEY=...
 
 echo "GRPO: nnodes=$NNODES node_rank=$NODE_RANK ngpus=$NGPUS num_generations=$NUM_GENERATIONS"
 echo "  model (Stage-1 SFT ckpt) : $MODEL_PATH"
 echo "  dataset                  : $DATASET_PATH"
 echo "  output                   : $OUTPUT_DIR"
 
-# Paper effective batch size = 1 * grad_accum(16) * world_size(48) / num_generations(8) = 96.
-# Paper reward:  R = λ_qual · R_qual + λ_comp · R_comp + λ_ground · R_ground,
-#                R_qual = α · R_global + (1-α) · R_local,
-#                (λ_qual, λ_comp, λ_ground) = (0.6, 0.2, 0.2), α = 0.5, γ = 1.0.
-# --reward_weights below is expanded to the four registered rewards (order = --reward_funcs):
-#   r-global = λ_qual · α       = 0.30 (R_global, union-IoU)
-#   r-local  = λ_qual · (1-α)   = 0.30 (R_local, NGIoU + boundary)
-#   r-ground = λ_ground         = 0.20 (R_ground)
-#   r-comp   = λ_comp           = 0.20 (R_comp)
 torchrun \
   --nnodes=$NNODES --node_rank=$NODE_RANK \
   --nproc_per_node=$NGPUS \

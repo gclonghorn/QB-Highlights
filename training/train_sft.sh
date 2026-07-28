@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stage 1 — CoT SFT (paper config), portable multi-GPU launcher via torchrun.
+# Stage 1 — SFT.
 #
 # Usage:
 #   NGPUS=8 bash train_sft.sh
@@ -25,7 +25,6 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export NCCL_NVLS_ENABLE=0
 export NPROC_PER_NODE=$NGPUS
 export FPS=1.0
-# optional: export WANDB_PROJECT=... WANDB_RUN_NAME=... WANDB_API_KEY=...
 
 echo "SFT: nnodes=$NNODES node_rank=$NODE_RANK ngpus=$NGPUS"
 echo "  model   : $MODEL_PATH"
