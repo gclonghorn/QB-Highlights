@@ -3,7 +3,7 @@
 Code and data release for **QB-Highlights: Quality-Guided Budgeted Highlight Detection in Videos with Dense Query-Relevant Moments**.
 
 <p align="center">
-  <img src="Figure1.png" width="95%" alt="QB-Highlights Teaser Figure">
+  <img src="Figure1.png" width=30%" alt="QB-Highlights Teaser Figure">
   <br>
   <em>Figure 1: While existing methods (Moment-DETR, Qwen3-VL) suffer from redundancy or overlook fine-grained visual quality (e.g., motion blur, occlusion), our QCR framework selects segments that are both high-quality and diverse under a strict duration budget.</em>
 </p>
@@ -12,7 +12,7 @@ Code and data release for **QB-Highlights: Quality-Guided Budgeted Highlight Det
 
 - **[2026-09-24]** 🎉 Our paper has been accepted to **NeurIPS 2026**! 
 - **[2026-10-13]** 🚀 We have released the **QCR model checkpoints** on ModelScope and the **full dataset (annotations + pseudo-labels)** on Alibaba Tianchi.
-- **[TBD]** 📝 The Camera-Ready version of the paper will be available soon on arXiv.
+- **[TBD]** 📝 The Camera-Ready version of the paper will be available soon.
 
 ---
 
