@@ -3,8 +3,7 @@ numpy
 opencv-python
 Pillow
 torch
-torchvision
-transformers            # CLIP backbone (Compositional Diversity)
-# Diversity(DINO): DINOv2 via torch.hub (facebookresearch/dinov2) — auto-downloaded
+transformers            # CLIP (openai/clip-vit-base-patch32) + DINOv2 (facebook/dinov2-base)
+                         # both backbones auto-download from the HF Hub on first run
 # MD-VQA : clone https://github.com/zzc-1998/MD-VQA  -> pass --mdvqa-root
 # DOVER  : clone https://github.com/VQAssessment/DOVER -> pass --dover-root ; pip install -e .

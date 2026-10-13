@@ -6,8 +6,8 @@ timeline of a video's predicted highlight clips, extracts visual features, and
 computes  diversity = 1 - mean(pairwise cosine similarity).
 
   --backbone clip  ->  Compositional Diversity   (CLIP ViT-B/32, paper Table 3)
-  --backbone dino  ->  Diversity(DINO)            (DINOv2, feature space disjoint
-                                                   from CLIP; rebuttal metric)
+  --backbone dino  ->  Diversity(DINO)            (DINOv2-base, third-party;
+                                                   feature space disjoint from CLIP)
 
 Averaged over the ~0.9k eval videos (missing predictions contribute 0).
 """
@@ -41,19 +41,20 @@ class CLIPBackbone:
 class DINOBackbone:
     name = "dino"
     def __init__(self, device):
-        # DINOv2 ViT-B/14 via torch.hub (feature space independent of CLIP)
+        # DINOv2-base via HF transformers — the exact feature space used for
+        # the paper's Diversity(DINO) numbers (pooler output = LayerNorm(CLS));
+        # self-supervised and language-free, hence disjoint from the CLIP-based
+        # pipeline. Auto-downloads from the HF Hub on first run.
+        from transformers import AutoImageProcessor, AutoModel
         self.device = device
-        self.model = torch.hub.load("facebookresearch/dinov2", "dinov2_vitb14").to(device).eval()
-        import torchvision.transforms as T
-        self.tf = T.Compose([
-            T.Resize(256), T.CenterCrop(224), T.ToTensor(),
-            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-        ])
+        self.model = AutoModel.from_pretrained("facebook/dinov2-base").to(device).eval()
+        self.proc = AutoImageProcessor.from_pretrained("facebook/dinov2-base")
 
     @torch.no_grad()
     def feat(self, img: Image.Image) -> np.ndarray:
-        x = self.tf(img).unsqueeze(0).to(self.device)
-        f = self.model(x)                       # (1, d) CLS feature
+        inp = self.proc(images=img, return_tensors="pt").to(self.device)
+        out = self.model(**inp)
+        f = out.pooler_output if out.pooler_output is not None else out.last_hidden_state[:, 0]
         f = f / f.norm(dim=-1, keepdim=True)
         return f.cpu().numpy().flatten()
 

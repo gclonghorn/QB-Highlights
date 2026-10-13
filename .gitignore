@@ -25,6 +25,7 @@ logs/
 .vscode/
 .idea/
 .DS_Store
+.qoder/
 
 # Training / inference outputs
 results/
